@@ -98,11 +98,11 @@ class MainActivity : AppCompatActivity() {
     // Если пользователь зареган, то сразу открывать экран с тестами
     override fun onStart() {
         super.onStart()
-        auth.signOut()
+
         val currentUser = auth.currentUser
-//        if(currentUser != null){
+        if(currentUser != null){
             val intent = Intent(this, TestActivity::class.java)
             startActivity(intent)
-//        }
+        }
     }
 }
