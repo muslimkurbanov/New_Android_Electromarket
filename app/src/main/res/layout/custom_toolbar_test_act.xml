@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarCustomTestAct"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_for_toolbar" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageForToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:foregroundGravity="center"
+        android:src="@drawable/toolbar_image_main"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iconHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/ic_help"
+        android:layout_marginEnd="14dp"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="false"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="14dp"
+        android:background="#00FFFFFF"
+        android:fontFamily="sans-serif-medium"
+        android:text="Выйти"
+        android:textSize="16dp"
+        android:gravity="center"
+        android:textAllCaps="false" android:visibility="visible" app:backgroundTint="#00FFFFFF"/>
+
+</RelativeLayout>
