@@ -10,6 +10,8 @@ import com.example.firebaseauthexample.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_registration.*
 import screen.registration.ui.RegistrationActivity
@@ -20,13 +22,15 @@ import kotlin.collections.HashMap
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var reference: DatabaseReference
+    private val database = Firebase.firestore
+//    private lateinit var reference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
-        reference = FirebaseDatabase.getInstance().getReference("users")
+
+//        reference = FirebaseDatabase.getInstance().getReference("users")
 
         setContentView(R.layout.activity_main)
 
@@ -63,11 +67,20 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
-                    val userReference = reference.child(auth.currentUser?.uid.toString())
-                    val map: HashMap<String, Any> = hashMapOf(
+
+
+                    val userCollection = database.collection("users").document(auth.currentUser?.uid.toString())
+                    val map = hashMapOf(
                         "email" to auth.currentUser?.email.toString()
                     )
-                    userReference.setValue(map)
+                    userCollection.set(map)
+
+
+//                    val userReference = reference.child(auth.currentUser?.uid.toString())
+//                    val map: HashMap<String, Any> = hashMapOf(
+//                        "email" to auth.currentUser?.email.toString()
+//                    )
+//                    userReference.setValue(map)
 
                     val intentToRegistrationAct = Intent(this, RegistrationActivity::class.java)
                     startActivity(intentToRegistrationAct)
@@ -100,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         val currentUser = auth.currentUser
-        if(currentUser != null){
+        if(currentUser != null) {
             val intent = Intent(this, TestActivity::class.java)
             startActivity(intent)
         }

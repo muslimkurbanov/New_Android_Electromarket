@@ -1,6 +1,7 @@
 package screen.fragment
 
 import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,9 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.firebaseauthexample.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_quiz.*
 import kotlinx.android.synthetic.main.custom_toolbar_test_act.*
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_profile.view.*
 import kotlinx.android.synthetic.main.fragment_test.*
 import screen.login.ui.MainActivity
 import screen.test.ui.TestAdapter
@@ -27,12 +31,14 @@ import kotlinx.android.synthetic.main.fragment_test.progressBar as progressBar1
 
 class ProfileFragment : Fragment() {
 
+    private val database = Firebase.firestore
     private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
-    private lateinit var ref: DatabaseReference
-    private lateinit var newRef: DatabaseReference
+//    private lateinit var database: FirebaseDatabase
+//    private lateinit var ref: DatabaseReference
+//    private lateinit var newRef: DatabaseReference
 
     private var test: HashMap<String, List<Int>> = HashMap()
+    private var testResultName = arrayListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,16 +52,6 @@ class ProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance()
-        ref = database.getReference("users")
-            .child(auth.currentUser?.uid.toString())
-
-
-        newRef = database.getReference("users")
-            .child(auth.currentUser?.uid.toString())
-            .child("Tests")
-            .child("TestsInformation")
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,21 +60,45 @@ class ProfileFragment : Fragment() {
         initLogOut()
         logoutButton.visibility = View.VISIBLE
         iconHelp.visibility = View.INVISIBLE
-        getUserScore()
-
+        loadData()
     }
 
-    private fun getUserScore() {
+    private fun loadData() {
 
-        val postListener = object : ValueEventListener {
+        val userCollection = database.collection("users")
+            .document(auth.currentUser?.uid.toString())
 
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        val resultNameCollection = database.collection("users")
+            .document(auth.currentUser?.uid.toString())
+            .collection("Тесты")
+            .document("Информация по тестам")
 
-                dataSnapshot.child("tests").children.forEach {
-                    test[it.key.orEmpty()] = it.value as List<Int>
+        resultNameCollection.get().addOnSuccessListener { snapshot ->
+
+            if (snapshot.data != null) {
+                val data = snapshot.data
+
+                testResultName = data?.get("Названия результатов тестов") as ArrayList<String>
+                //TODO: ishidden false table
+            }
+        }
+
+        userCollection.get().addOnSuccessListener { snapshot ->
+
+            if (snapshot.data != null) {
+                val data = snapshot.data
+
+                val results = data?.get("Результаты по тестам") ?: run {
+                    noCompletedTestsTextView.visibility = View.VISIBLE
+                    progressBar.visibility = View.INVISIBLE
+                    return@addOnSuccessListener
                 }
 
-                if (test.size == 0) {
+//                val results = data?.get("Результаты по тестам").let { it } ?: return@addOnSuccessListener
+
+                test = data?.get("Результаты по тестам") as HashMap<String, List<Int>>
+
+                if (test.isEmpty()) {
                     noCompletedTestsTextView.visibility = View.VISIBLE
                 }
 
@@ -86,22 +106,22 @@ class ProfileFragment : Fragment() {
                 recyclerViewProfile.adapter = testAdapter
 
                 progressBar.visibility = View.INVISIBLE
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.d("err", "${databaseError.details} - ${databaseError.message}")
+            } else {
+                //TODO: сделать вывод - тесты не пройдены
             }
         }
-
-        ref.addListenerForSingleValueEvent(postListener)
+            .addOnFailureListener { exception ->
+                Log.d(ContentValues.TAG, "get failed with ", exception)
+            }
     }
+
     private fun initLogOut() {
 
         logoutButton.visibility = View.VISIBLE
         iconHelp.visibility = View.INVISIBLE
 
         val alertDialog = AlertDialog
-            .Builder(this.view!!.context)
+            .Builder(this.requireView().context)
             .setTitle("Инструкция")
             .setMessage("Вы действительно хотите выйти из профиля?")
             .setPositiveButton("Да") { _, _ ->
