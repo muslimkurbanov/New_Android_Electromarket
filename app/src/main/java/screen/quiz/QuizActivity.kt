@@ -150,29 +150,30 @@ class QuizActivity : AppCompatActivity() {
 
             button.setOnClickListener {
 
-                 when {
-                    button.text == firebaseRightAnswers[index] -> {
-                        index++
-                        score++
-                        textView.text = firebaseQuestions[index]
-                        applyButtons()
-                    }
+                if (button.text == firebaseRightAnswers[index]) {
 
-                    index <= firebaseQuestions.count() -> {
-                        index++
-                        textView.text = firebaseQuestions[index]
-                        applyButtons()
-                    }
+                    index++
+                    score++
+                    textView.text = firebaseQuestions[index]
 
-                    else -> return@setOnClickListener
+                } else if (index <= firebaseQuestions.size) {
+
+                    index++
+                    textView.text = firebaseQuestions[index]
+
+                } else {
+                    return@setOnClickListener
                 }
-                if (index == firebaseQuestions.count() - 1) {
+
+                if (index == (firebaseQuestions.size - 1)) {
                     for (i in buttons) {
                         i.visibility = View.GONE
                         finishButton.visibility = View.VISIBLE
                         resultTextView.visibility = View.VISIBLE
                         resultTextView.text = "Ваш результат: $score"
                     }
+                } else {
+                    applyButtons()
                 }
             }
         }
