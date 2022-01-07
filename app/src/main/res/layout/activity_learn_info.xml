@@ -10,6 +10,24 @@
     tools:context="screen.learninfo.LearnInfoActivity">
 
 
+    <TextView
+        android:id="@+id/testDescriptionTextView"
+        android:layout_width="364dp"
+        android:layout_height="250dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="27dp"
+        android:layout_marginRight="27dp"
+        android:gravity="center"
+        android:text="Описание теста"
+        android:visibility="invisible"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button1" />
+
     <VideoView
         android:id="@+id/videoViewLearnInfoScreen"
         android:layout_width="match_parent"
@@ -19,6 +37,7 @@
         android:layout_marginBottom="242dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible"
         tools:layout_editor_absoluteX="0dp" />
 
     <androidx.appcompat.widget.Toolbar

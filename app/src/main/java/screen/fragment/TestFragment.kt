@@ -31,9 +31,7 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
     private var database = Firebase.firestore
     private lateinit var auth: FirebaseAuth
 
-    private var testNamesList = ArrayList<String>()
-    private var testImagesList = ArrayList<String>()
-    private var testResultNamesList = ArrayList<String>()
+    private val testListKeys = arrayListOf<String>()
 
     //MARK: - Lifecycle
 
@@ -62,48 +60,75 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
     // Загрузка названий тестов
     private fun loadDataFromFB() {
 
-//        database.collection("users")
-//            .get()
-//            .addOnSuccessListener { querySnapshot ->
-//
-//            }
-//            .addOnFailureListener { exception: Exception ->
-//
-//            }
+        database.collection("Тесты").document("Список тестов")
+            .get()
+            .addOnSuccessListener { snapshot ->
 
-        val ref = database.collection("users")
-            .document(auth.currentUser?.uid.toString())
-            .collection("Тесты")
-            .document("Информация по тестам")
+                val data = snapshot.data ?: return@addOnSuccessListener
 
-        ref.get().addOnSuccessListener { document ->
+                val testImages = arrayListOf<HashMap<String, Any>>()
 
-            if (document.data != null) {
-                val data = document.data
-                testImagesList = data?.get("Картинки тестов") as ArrayList<String>
-                testNamesList = data?.get("Названия тестов") as ArrayList<String>
-                testResultNamesList = data?.get("Названия результатов тестов") as ArrayList<String>
+                data.map {
 
-                if (testNamesList.size == 0) {
-                    noTestTextView.visibility = View.VISIBLE
+                    testImages.add(it.value as HashMap<String, Any>)
+                    testListKeys.add(it.key)
                 }
 
-                val testAdapter = TestAdapter(testNamesList, testImagesList, this@TestFragment)
-                recyclerViewTestAct.adapter = testAdapter
+                val images = arrayListOf<String>()
 
-                progressBar.visibility = View.INVISIBLE
+                for (value in testImages) {
+
+                    images.add(value["Картинка"] as String)
+                }
+
+                if (testListKeys.size == 0) {
+
+                    noTestTextView.visibility = View.VISIBLE
+                } else {
+
+                    val testAdapter = TestAdapter(testListKeys, images,this@TestFragment)
+                    recyclerViewTestAct.adapter = testAdapter
+
+                    progressBar.visibility = View.INVISIBLE
+                }
             }
-        }.addOnFailureListener { exception ->
-            Log.d(TAG, "get failed with ", exception)
-        }
+            .addOnFailureListener { exception: Exception ->
+
+                Log.d("Ошибка", exception.message.toString())
+            }
+
+//        val ref = database.collection("users")
+//            .document(auth.currentUser?.uid.toString())
+//            .collection("Тесты")
+//            .document("Информация по тестам")
+//
+//        ref.get().addOnSuccessListener { document ->
+//
+//            if (document.data != null) {
+//                val data = document.data
+//                testImagesList = data?.get("Картинки тестов") as ArrayList<String>
+//                testNamesList = data?.get("Названия тестов") as ArrayList<String>
+//                testResultNamesList = data?.get("Названия результатов тестов") as ArrayList<String>
+//
+//                if (testNamesList.size == 0) {
+//                    noTestTextView.visibility = View.VISIBLE
+//                }
+//
+//                val testAdapter = TestAdapter(testNamesList, testImagesList, this@TestFragment)
+//                recyclerViewTestAct.adapter = testAdapter
+//
+//                progressBar.visibility = View.INVISIBLE
+//            }
+//        }.addOnFailureListener { exception ->
+//            Log.d(TAG, "get failed with ", exception)
+//        }
     }
 
 
      override fun onItemClick(position: Int) {
 
          val intent = Intent(activity, LearnInfoActivity::class.java)
-         intent.putExtra(LearnInfoActivity.TEST_NAME, testNamesList[position])
-         intent.putExtra(LearnInfoActivity.TEST_RESULT_NAME, testResultNamesList[position])
+         intent.putExtra(LearnInfoActivity.TEST_NAME, testListKeys[position])
 
          recyclerViewTestAct.adapter?.notifyItemChanged(position)
          startActivity(intent)
@@ -116,7 +141,7 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
          iconHelp.visibility = View.VISIBLE
 
         val alertDialog =
-            AlertDialog.Builder(this.view!!.context).setTitle("Инструкция").setMessage(
+            AlertDialog.Builder(this.requireView().context).setTitle("Инструкция").setMessage(
                 "После нажатия кнопки 'Приступить к тесту' вы перейдете к просмотру"
                         + "\n"
                         + "видеоролика с материалом по тесту."

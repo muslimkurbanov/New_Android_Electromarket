@@ -3,17 +3,31 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../layout/custom_preview.xml" value="0.4" />
+        <entry key="app/src/main/res/drawable/custom_edit_text_main.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/custom_login_button_main.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/custom_spinner_feedback.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/ic_book.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/ic_form.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/ic_help.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/ic_profile.xml" value="0.33125" />
         <entry key="app/src/main/res/layout/activity_check_quiz.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/activity_learn_info.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/activity_quiz.xml" value="0.30104166666666665" />
+        <entry key="app/src/main/res/layout/activity_registration.xml" value="0.3233695652173913" />
         <entry key="app/src/main/res/layout/activity_test.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/custom_toolbar_main.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/custom_toolbar_test_act.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.30104166666666665" />
+        <entry key="app/src/main/res/layout/fragment_form.xml" value="0.3151041666666667" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.23278985507246377" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/fragment_test.xml" value="0.30104166666666665" />
         <entry key="app/src/main/res/layout/item_test_layout.xml" value="0.30104166666666665" />
+        <entry key="app/src/main/res/layout/variants_recyclerview.xml" value="0.3151041666666667" />
+        <entry key="app/src/main/res/menu/menu_bottom_bar.xml" value="0.3296875" />
       </map>
     </option>
   </component>

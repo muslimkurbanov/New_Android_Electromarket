@@ -29,7 +29,6 @@ class LearnInfoActivity : AppCompatActivity() {
 
     companion object {
         const val TEST_NAME: String = "test_name"
-        const val TEST_RESULT_NAME: String = "test_result_name"
     }
 
     //MARK: - Lifecycle
@@ -41,43 +40,60 @@ class LearnInfoActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         val testName = intent.getStringExtra(TEST_NAME)
-        val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
 
-        val ref = database.collection("users")
-            .document(auth.currentUser?.uid.toString())
-            .collection("Тесты")
-            .document(testName.toString())
-
-        getVideoUrlFromFB(ref)
+        loadData()
 
         button1.setOnClickListener {
 
             val quizActivityIntent = Intent(this, QuizActivity::class.java)
             quizActivityIntent.putExtra(QuizActivity.TEST_NAME, testName)
-            quizActivityIntent.putExtra(QuizActivity.TEST_RESULT_NAME, testResultName)
             startActivity(quizActivityIntent)
         }
     }
 
-    private fun getVideoUrlFromFB(ref: DocumentReference) {
+    private fun loadData() {
 
-        ref.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot != null) {
-                val data = documentSnapshot.data
+        database.collection("Тесты").document("Список тестов").get()
+            .addOnSuccessListener { snapshot ->
 
-                video = data?.get("Видео теста") as String
+                val data = snapshot.data ?: return@addOnSuccessListener
 
-                val mediaController = MediaController(this@LearnInfoActivity)
-                mediaController.setAnchorView(videoViewLearnInfoScreen)
-                videoViewLearnInfoScreen.setMediaController(mediaController)
+                val testName = intent.getStringExtra(TEST_NAME)
 
-                videoViewLearnInfoScreen.setVideoURI(Uri.parse(video))
-                videoViewLearnInfoScreen.requestFocus()
-                videoViewLearnInfoScreen.start()
+                val test = data[testName] as HashMap<String, Any>
 
-            } else {
-                //TODO: - вывести ошибку
+                val description = test["Описание"] as? String
+                val video = test["Видео"] as? String
+
+                if (description != null) {
+
+                    testDescriptionTextView.visibility = View.VISIBLE
+                    testDescriptionTextView.text = description
+                }
+
+                if (video != null) {
+
+                    val mediaController = MediaController(this@LearnInfoActivity)
+                    mediaController.setAnchorView(videoViewLearnInfoScreen)
+                    videoViewLearnInfoScreen.visibility = View.VISIBLE
+                    videoViewLearnInfoScreen.setMediaController(mediaController)
+
+                    videoViewLearnInfoScreen.setVideoURI(Uri.parse(video))
+                    videoViewLearnInfoScreen.requestFocus()
+                    videoViewLearnInfoScreen.start()
+                }
             }
-        }
+
+//        ref.get().addOnSuccessListener { documentSnapshot ->
+//            if (documentSnapshot != null) {
+//                val data = documentSnapshot.data
+//
+//                video = data?.get("Видео теста") as String
+//
+//
+//
+//            } else {
+//                //TODO: - вывести ошибку
+//            }
     }
 }

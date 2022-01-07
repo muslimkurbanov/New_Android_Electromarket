@@ -5,10 +5,8 @@
         android:id="@+id/test_list_bar"
         android:title="@string/title_test_list_bar"
         android:icon="@drawable/ic_book" />
-
     <item
         android:id="@+id/profile_bar"
         android:title="@string/title_profile_bar"
         android:icon="@drawable/ic_profile" />
-
 </menu>
