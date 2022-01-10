@@ -3,6 +3,7 @@ package screen.learninfo
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.MediaController
 import android.widget.VideoView
@@ -13,6 +14,7 @@ import com.google.firebase.database.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_learn_info.*
 import kotlinx.android.synthetic.main.fragment_test.*
 import screen.quiz.QuizActivity
@@ -64,6 +66,7 @@ class LearnInfoActivity : AppCompatActivity() {
 
                 val description = test["Описание"] as? String
                 val video = test["Видео"] as? String
+                val image = test["Картинка к заданию"] as? String
 
                 if (description != null) {
 
@@ -82,6 +85,21 @@ class LearnInfoActivity : AppCompatActivity() {
                     videoViewLearnInfoScreen.requestFocus()
                     videoViewLearnInfoScreen.start()
                 }
+
+                if (image != null) {
+
+                    infoImageView.visibility = View.VISIBLE
+
+                    Picasso.get()
+                        .load(image)
+                        .resize(250, 250)
+                        .centerCrop()
+                        .placeholder(R.color.browser_actions_divider_color)
+                        .into(infoImageView)
+                }
+            }
+            .addOnFailureListener {
+                Log.d("Ошибка", it.message.toString())
             }
 
 //        ref.get().addOnSuccessListener { documentSnapshot ->

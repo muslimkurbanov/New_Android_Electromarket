@@ -86,7 +86,7 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
                     noTestTextView.visibility = View.VISIBLE
                 } else {
 
-                    val testAdapter = TestAdapter(testListKeys, images,this@TestFragment)
+                    val testAdapter = TestAdapter(testListKeys, images, this@TestFragment)
                     recyclerViewTestAct.adapter = testAdapter
 
                     progressBar.visibility = View.INVISIBLE
@@ -96,49 +96,21 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
 
                 Log.d("Ошибка", exception.message.toString())
             }
-
-//        val ref = database.collection("users")
-//            .document(auth.currentUser?.uid.toString())
-//            .collection("Тесты")
-//            .document("Информация по тестам")
-//
-//        ref.get().addOnSuccessListener { document ->
-//
-//            if (document.data != null) {
-//                val data = document.data
-//                testImagesList = data?.get("Картинки тестов") as ArrayList<String>
-//                testNamesList = data?.get("Названия тестов") as ArrayList<String>
-//                testResultNamesList = data?.get("Названия результатов тестов") as ArrayList<String>
-//
-//                if (testNamesList.size == 0) {
-//                    noTestTextView.visibility = View.VISIBLE
-//                }
-//
-//                val testAdapter = TestAdapter(testNamesList, testImagesList, this@TestFragment)
-//                recyclerViewTestAct.adapter = testAdapter
-//
-//                progressBar.visibility = View.INVISIBLE
-//            }
-//        }.addOnFailureListener { exception ->
-//            Log.d(TAG, "get failed with ", exception)
-//        }
     }
 
+    override fun onItemClick(position: Int) {
 
-     override fun onItemClick(position: Int) {
+        val intent = Intent(activity, LearnInfoActivity::class.java)
+        intent.putExtra(LearnInfoActivity.TEST_NAME, testListKeys[position])
 
-         val intent = Intent(activity, LearnInfoActivity::class.java)
-         intent.putExtra(LearnInfoActivity.TEST_NAME, testListKeys[position])
+        recyclerViewTestAct.adapter?.notifyItemChanged(position)
+        startActivity(intent)
+    }
 
-         recyclerViewTestAct.adapter?.notifyItemChanged(position)
-         startActivity(intent)
-     }
+    private fun initAlertDialog() {
 
-
-     private fun initAlertDialog() {
-
-         logoutButton.visibility = View.INVISIBLE
-         iconHelp.visibility = View.VISIBLE
+        logoutButton.visibility = View.INVISIBLE
+        iconHelp.visibility = View.VISIBLE
 
         val alertDialog =
             AlertDialog.Builder(this.requireView().context).setTitle("Инструкция").setMessage(

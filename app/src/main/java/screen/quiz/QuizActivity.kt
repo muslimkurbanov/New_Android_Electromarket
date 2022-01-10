@@ -28,17 +28,22 @@ class QuizActivity : AppCompatActivity() {
 
     companion object {
         const val TEST_NAME: String = "test_name"
-        const val TEST_RESULT_NAME: String = "test_result_name"
+//        const val TEST_RESULT_NAME: String = "test_result_name"
     }
 
     private val database = Firebase.firestore
     private lateinit var auth: FirebaseAuth
 
+    //Убрать нахер
     private var firebaseQuestions = arrayListOf<String>()
     private var firebaseRightAnswers = arrayListOf<String>()
     private var firebaseAnswers = ArrayList<HashMap<String, String>>()
 
     private var testResults = arrayListOf<Int>()
+    //До сюды
+
+    private var questions = arrayListOf<String>()
+    private var answers = arrayListOf<HashMap<String, Any>>()
 
     private var index = 0
     private var score = 0
@@ -62,87 +67,113 @@ class QuizActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val resultsRef = database.collection("users")
-            .document(auth.currentUser?.uid.toString())
-
-        getResultsFromFB(resultsRef)
-
-        val testRef = database.collection("users")
-            .document(auth.currentUser?.uid.toString())
-            .collection("Тесты")
-            .document(testName.toString())
-
-        getTestFromFB(testRef)
+        loadData()
         initListeners()
+
+        //TODO: - Выпилить
+//        val resultsRef = database.collection("users")
+//            .document(auth.currentUser?.uid.toString())
+//
+//        getResultsFromFB(resultsRef)
+//
+//        val testRef = database.collection("users")
+//            .document(auth.currentUser?.uid.toString())
+//            .collection("Тесты")
+//            .document(testName.toString())
+//
+//        getTestFromFB(testRef)
     }
 
-    private fun getResultsFromFB(resultsRef: DocumentReference) {
+    private fun loadData() {
 
         val testName = intent.getStringExtra(TEST_NAME)
-        val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
 
-        resultsRef.get().addOnSuccessListener { documentSnapshot ->
+        database.collection("Тесты").document("Список тестов").get()
+            .addOnSuccessListener {
 
-            if (documentSnapshot != null) {
-                val data = documentSnapshot.data
+                val data = it.data ?: return@addOnSuccessListener
 
-                val testres = data?.get("Результаты по тестам") as HashMap<String, ArrayList<Int>>
+                val test = data[testName] as? HashMap<String, Any>
 
-                if (testres[testResultName.toString()] != null) {
-                    testResults = testres[testResultName.toString()]!!
-                } else {
-                    //TODO: - Вывести ошибку
-                }
-
-            } else {
-                //TODO: - вывести ошибку
+                answers = (test?.get("Варианты ответов") ?: return@addOnSuccessListener) as ArrayList<HashMap<String, Any>>
+                questions = (test["Вопросы"] ?: return@addOnSuccessListener) as ArrayList<String>
             }
-        }
+
+            .addOnFailureListener {
+                Log.d("Ошибка", it.message.toString())
+            }
     }
 
-    private fun getTestFromFB(testRef: DocumentReference) {
+//    private fun getResultsFromFB(resultsRef: DocumentReference) {
+//
+//        val testName = intent.getStringExtra(TEST_NAME)
+//        val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
+//
+//        resultsRef.get().addOnSuccessListener { documentSnapshot ->
+//
+//            if (documentSnapshot != null) {
+//                val data = documentSnapshot.data
+//
+//                val testres = data?.get("Результаты по тестам") as HashMap<String, ArrayList<Int>>
+//
+//                if (testres[testResultName.toString()] != null) {
+//                    testResults = testres[testResultName.toString()]!!
+//                } else {
+//                    //TODO: - Вывести ошибку
+//                }
+//
+//            } else {
+//                //TODO: - вывести ошибку
+//            }
+//        }
+//    }
 
-        testRef.get().addOnSuccessListener { documentSnapshot ->
+//    private fun getTestFromFB(testRef: DocumentReference) {
+//
+//        testRef.get().addOnSuccessListener { documentSnapshot ->
+//
+//            if (documentSnapshot != null) {
+//                val data = documentSnapshot.data
+//
+//                firebaseQuestions = data?.get("Вопросы") as ArrayList<String>
+//                firebaseRightAnswers = data?.get("Правильные ответы") as ArrayList<String>
+//                firebaseAnswers = data?.get("Ответы") as ArrayList<HashMap<String, String>>
+//
+//                textView.text = firebaseQuestions[index]
+//                applyButtons()
+//            } else {
+//                //TODO: - вывести ошибку
+//            }
+//        }
+//    }
 
-            if (documentSnapshot != null) {
-                val data = documentSnapshot.data
-
-                firebaseQuestions = data?.get("Вопросы") as ArrayList<String>
-                firebaseRightAnswers = data?.get("Правильные ответы") as ArrayList<String>
-                firebaseAnswers = data?.get("Ответы") as ArrayList<HashMap<String, String>>
-
-                textView.text = firebaseQuestions[index]
-                applyButtons()
-            } else {
-                //TODO: - вывести ошибку
-            }
-        }
-    }
 
     private fun applyButtons() {
 
-        buttons.forEachIndexed { index, button ->
-            button.text = firebaseAnswers[this.index][index.toString()]
-        }
+        //TODO - Сделать изменение вариантов ответа под новую архитектуру
+//        buttons.forEachIndexed { index, button ->
+//            button.text = firebaseAnswers[this.index][index.toString()]
+//        }
     }
-
+    
     private fun initListeners() {
 
         finishButton.setOnClickListener {
 
-            val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
-            testResults.add(score)
-
-            val testResultRef = database.collection("users")
-                .document(auth.currentUser?.uid.toString())
-
-            val resultHashMap = hashMapOf(
-                "Результаты по тестам" to hashMapOf(testResultName to testResults)
-            )
-            testResultRef.set(resultHashMap, SetOptions.merge())
-
-            val intentNice = Intent(this, TestActivity::class.java)
-            startActivity(intentNice)
+            //TODO: - Переделать добавление результатов тестов на бд
+//            val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
+//            testResults.add(score)
+//
+//            val testResultRef = database.collection("users")
+//                .document(auth.currentUser?.uid.toString())
+//
+//            val resultHashMap = hashMapOf(
+//                "Результаты по тестам" to hashMapOf(testResultName to testResults)
+//            )
+//            testResultRef.set(resultHashMap, SetOptions.merge())
+//
+//            val intentNice = Intent(this, TestActivity::class.java)
+//            startActivity(intentNice)
 
         }
 
@@ -150,31 +181,33 @@ class QuizActivity : AppCompatActivity() {
 
             button.setOnClickListener {
 
-                if (button.text == firebaseRightAnswers[index]) {
+                //TODO: - Переделать логику тестов
 
-                    index++
-                    score++
-                    textView.text = firebaseQuestions[index]
-
-                } else if (index <= firebaseQuestions.size) {
-
-                    index++
-                    textView.text = firebaseQuestions[index]
-
-                } else {
-                    return@setOnClickListener
-                }
-
-                if (index == (firebaseQuestions.size - 1)) {
-                    for (i in buttons) {
-                        i.visibility = View.GONE
-                        finishButton.visibility = View.VISIBLE
-                        resultTextView.visibility = View.VISIBLE
-                        resultTextView.text = "Ваш результат: $score"
-                    }
-                } else {
-                    applyButtons()
-                }
+//                if (button.text == firebaseRightAnswers[index]) {
+//
+//                    index++
+//                    score++
+//                    textView.text = firebaseQuestions[index]
+//
+//                } else if (index <= firebaseQuestions.size) {
+//
+//                    index++
+//                    textView.text = firebaseQuestions[index]
+//
+//                } else {
+//                    return@setOnClickListener
+//                }
+//
+//                if (index == (firebaseQuestions.size - 1)) {
+//                    for (i in buttons) {
+//                        i.visibility = View.GONE
+//                        finishButton.visibility = View.VISIBLE
+//                        resultTextView.visibility = View.VISIBLE
+//                        resultTextView.text = "Ваш результат: $score"
+//                    }
+//                } else {
+//                    applyButtons()
+//                }
             }
         }
     }
