@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.firebaseauthexample.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_test_layout.view.*
@@ -30,20 +31,12 @@ class TestAdapter(
     override fun onBindViewHolder(holder: TestViewHolder, position: Int) {
 
         holder.titleTextView?.text = fieldTestList[position]
-        holder.initialaze(listener)
-        val path = imageTestList[position]
-        Picasso.get()
-            .load(path)
-            .resize(250, 250)
-            .centerCrop()
-            .placeholder(R.color.browser_actions_divider_color)
-            .into(holder.image)
-
+        holder.initialaze(listener, imageUrl = imageTestList[position])
     }
 
 
 
-    class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val act = LearnInfoActivity
         val testAct = LearnInfoActivity()
         var titleTextView: TextView? = null
@@ -54,9 +47,22 @@ class TestAdapter(
             image = itemView.imageTest
         }
 
-        fun initialaze(action: OnItemClickListener) {
+        fun initialaze(action: OnItemClickListener, imageUrl: String ?= null) {
             itemView.setOnClickListener {
                 action.onItemClick(adapterPosition)
+            }
+
+//            Picasso.get()
+//                .load(path)
+//                .resize(250, 250)
+//                .centerCrop()
+//                .placeholder(R.color.browser_actions_divider_color)
+//                .into(image)
+
+            image?.let {
+                Glide.with(itemView.context)
+                    .load(imageUrl)
+                    .into(it)
             }
 
         }

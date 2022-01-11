@@ -3,6 +3,7 @@ package screen.quiz
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.view.View
 import android.widget.MediaController
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_learn_info.*
 import kotlinx.android.synthetic.main.activity_quiz.*
 import kotlinx.android.synthetic.main.activity_quiz.button1
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.android.synthetic.main.custom_text_spinner.view.*
 import screen.fragment.TestFragment
 import screen.test.ui.TestActivity
 import kotlin.collections.ArrayList
@@ -43,8 +45,12 @@ class QuizActivity : AppCompatActivity() {
     //До сюды
 
     private var questions = arrayListOf<String>()
-    private var answers = arrayListOf<HashMap<String, Any>>()
+    private var answers = arrayListOf<HashMap<String, String>>()
+    private var rightAnswers = arrayListOf<String>()
+    private var testType = ""
 
+    private var userAnswers = arrayListOf<String>()
+    private var userComments = arrayListOf<String>()
     private var index = 0
     private var score = 0
 
@@ -93,16 +99,39 @@ class QuizActivity : AppCompatActivity() {
 
                 val data = it.data ?: return@addOnSuccessListener
 
+                quizProgressBar.visibility = View.INVISIBLE
+
                 val test = data[testName] as? HashMap<String, Any>
 
-                answers = (test?.get("Варианты ответов") ?: return@addOnSuccessListener) as ArrayList<HashMap<String, Any>>
+                //Получение переменных
+                answers = test?.get("Варианты ответов") as? ArrayList<HashMap<String, String>> ?: return@addOnSuccessListener
                 questions = (test["Вопросы"] ?: return@addOnSuccessListener) as ArrayList<String>
+//                rightAnswers = test["Правильные ответы"] as ArrayList<String>]
+                if (test["Правильные ответы"] != null) {
+                    rightAnswers = test["Правильные ответы"] as ArrayList<String>
+                }
+
+                testType = test["Тип"] as? String ?: return@addOnSuccessListener
+
+                textView.text = questions[index]
+                val commentText = test["Текст текстового поля"] as? String ?: return@addOnSuccessListener
+
+                //Настройка текстового поля
+                if (commentText != null) {
+
+                    inputCommentEditText.visibility = View.VISIBLE
+                    inputCommentEditText.hint = commentText
+                }
+
+                applyButtons()
             }
 
             .addOnFailureListener {
                 Log.d("Ошибка", it.message.toString())
             }
     }
+
+    //TODO: - Выпилить
 
 //    private fun getResultsFromFB(resultsRef: DocumentReference) {
 //
@@ -128,6 +157,8 @@ class QuizActivity : AppCompatActivity() {
 //        }
 //    }
 
+    //TODO - Выпилить
+
 //    private fun getTestFromFB(testRef: DocumentReference) {
 //
 //        testRef.get().addOnSuccessListener { documentSnapshot ->
@@ -150,15 +181,16 @@ class QuizActivity : AppCompatActivity() {
 
     private fun applyButtons() {
 
-        //TODO - Сделать изменение вариантов ответа под новую архитектуру
-//        buttons.forEachIndexed { index, button ->
-//            button.text = firebaseAnswers[this.index][index.toString()]
-//        }
+        buttons.forEachIndexed { index, button ->
+            button.text = answers[this.index][index.toString()]
+        }
     }
-    
+
     private fun initListeners() {
 
         finishButton.setOnClickListener {
+
+            if (testType == "Тест") {
 
             //TODO: - Переделать добавление результатов тестов на бд
 //            val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
@@ -174,7 +206,11 @@ class QuizActivity : AppCompatActivity() {
 //
 //            val intentNice = Intent(this, TestActivity::class.java)
 //            startActivity(intentNice)
+            } else {
 
+                Log.d("HELPME", userAnswers.toString())
+                Log.d("HELPME", userComments.toString())
+            }
         }
 
         buttons.forEach { button ->
@@ -183,31 +219,60 @@ class QuizActivity : AppCompatActivity() {
 
                 //TODO: - Переделать логику тестов
 
-//                if (button.text == firebaseRightAnswers[index]) {
-//
-//                    index++
-//                    score++
-//                    textView.text = firebaseQuestions[index]
-//
-//                } else if (index <= firebaseQuestions.size) {
-//
-//                    index++
-//                    textView.text = firebaseQuestions[index]
-//
-//                } else {
-//                    return@setOnClickListener
-//                }
-//
-//                if (index == (firebaseQuestions.size - 1)) {
-//                    for (i in buttons) {
-//                        i.visibility = View.GONE
-//                        finishButton.visibility = View.VISIBLE
-//                        resultTextView.visibility = View.VISIBLE
-//                        resultTextView.text = "Ваш результат: $score"
-//                    }
-//                } else {
-//                    applyButtons()
-//                }
+                if (testType == "Тест") {
+
+                    if (button.text == rightAnswers[index]) {
+
+                        index++
+                        score++
+                        textView.text = questions[index]
+
+                    } else if (index <= questions.size) {
+
+                        index++
+                        textView.text = questions[index]
+
+                    } else {
+                        return@setOnClickListener
+                    }
+
+                    if (index == (questions.size - 1)) {
+                        for (i in buttons) {
+                            i.visibility = View.GONE
+                            finishButton.visibility = View.VISIBLE
+                            resultTextView.visibility = View.VISIBLE
+                            resultTextView.text = "Ваш результат: $score"
+                        }
+                    } else {
+                        applyButtons()
+                    }
+
+                } else {
+
+                    if (index == questions.size - 1) {
+
+                        userAnswers.add(button.text.toString())
+                        userComments.add(inputCommentEditText.text.toString())
+                        
+                        for (btn in buttons) {
+                            btn.visibility = View.GONE
+                        }
+
+                        textView.text = "Опрос завершен" + "\n" + "\n" + "Спасибо что уделили время!"
+                        inputCommentEditText.visibility = View.INVISIBLE
+                        finishButton.visibility = View.VISIBLE
+                    } else {
+
+                        index ++
+
+                        textView.text = questions[index]
+                        userAnswers.add(button.text.toString())
+                        userComments.add(inputCommentEditText.text.toString())
+                        inputCommentEditText.text = null
+
+                        applyButtons()
+                    }
+                }
             }
         }
     }

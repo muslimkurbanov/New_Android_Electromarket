@@ -19,6 +19,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.custom_toolbar_test_act.*
 import kotlinx.android.synthetic.main.fragment_test.*
+import kotlinx.coroutines.delay
 import screen.learninfo.LearnInfoActivity
 import screen.test.mvp.TestView
 import screen.test.ui.TestAdapter
@@ -43,15 +44,11 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
         return inflater.inflate(R.layout.fragment_test, container, false)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        auth = FirebaseAuth.getInstance()
-        loadDataFromFB()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        auth = FirebaseAuth.getInstance()
+        loadDataFromFB()
         initAlertDialog()
     }
 
@@ -84,8 +81,10 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
                 if (testListKeys.size == 0) {
 
                     noTestTextView.visibility = View.VISIBLE
+
                 } else {
 
+                    Log.d("HELLO", images.size.toString())
                     val testAdapter = TestAdapter(testListKeys, images, this@TestFragment)
                     recyclerViewTestAct.adapter = testAdapter
 
