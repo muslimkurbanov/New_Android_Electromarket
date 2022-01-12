@@ -33,6 +33,7 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
     private lateinit var auth: FirebaseAuth
 
     private val testListKeys = arrayListOf<String>()
+    private val images = arrayListOf<String>()
 
     //MARK: - Lifecycle
 
@@ -57,6 +58,9 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
     // Загрузка названий тестов
     private fun loadDataFromFB() {
 
+        testListKeys.clear()
+        images.clear()
+
         database.collection("Тесты").document("Список тестов")
             .get()
             .addOnSuccessListener { snapshot ->
@@ -71,7 +75,6 @@ class TestFragment : Fragment(), TestView, TestAdapter.OnItemClickListener {
                     testListKeys.add(it.key)
                 }
 
-                val images = arrayListOf<String>()
 
                 for (value in testImages) {
 

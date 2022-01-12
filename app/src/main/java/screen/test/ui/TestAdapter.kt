@@ -32,9 +32,8 @@ class TestAdapter(
 
         holder.titleTextView?.text = fieldTestList[position]
         holder.initialaze(listener, imageUrl = imageTestList[position])
+//        holder.initialaze(listener)
     }
-
-
 
     inner class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val act = LearnInfoActivity
