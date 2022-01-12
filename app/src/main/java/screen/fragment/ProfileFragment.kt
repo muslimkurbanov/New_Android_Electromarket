@@ -33,9 +33,6 @@ class ProfileFragment : Fragment() {
 
     private val database = Firebase.firestore
     private lateinit var auth: FirebaseAuth
-//    private lateinit var database: FirebaseDatabase
-//    private lateinit var ref: DatabaseReference
-//    private lateinit var newRef: DatabaseReference
 
     private var test: HashMap<String, List<Int>> = HashMap()
     private var testResultName = arrayListOf<String>()
@@ -64,6 +61,28 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadData() {
+
+        database.collection("users").document(auth.currentUser?.uid.toString()).get()
+            .addOnSuccessListener {
+
+                val data = it.data ?: return@addOnSuccessListener
+
+                val name = data["Имя"] as? String ?: return@addOnSuccessListener
+                val surname = data["Фамилия"] as? String ?: return@addOnSuccessListener
+
+                val username = "$name $surname"
+
+                database.collection("Тесты").document("Результаты по тестам").get()
+                    .addOnSuccessListener {
+
+                        val data = it.data ?: return@addOnSuccessListener
+
+                        val userResultMap = data[username] as? HashMap<*, *> ?: return@addOnSuccessListener
+
+                    }
+
+            }
+
 
         val userCollection = database.collection("users")
             .document(auth.currentUser?.uid.toString())

@@ -114,10 +114,11 @@ class QuizActivity : AppCompatActivity() {
                 testType = test["Тип"] as? String ?: return@addOnSuccessListener
 
                 textView.text = questions[index]
-                val commentText = test["Текст текстового поля"] as? String ?: return@addOnSuccessListener
 
                 //Настройка текстового поля
-                if (commentText != null) {
+                if (test["Текст текстового поля"] != null) {
+
+                    val commentText = test["Текст текстового поля"] as? String ?: return@addOnSuccessListener
 
                     inputCommentEditText.visibility = View.VISIBLE
                     inputCommentEditText.hint = commentText
@@ -190,25 +191,9 @@ class QuizActivity : AppCompatActivity() {
 
         finishButton.setOnClickListener {
 
+            val testName = intent.getStringExtra(TEST_NAME)
+
             if (testType == "Тест") {
-
-            //TODO: - Переделать добавление результатов тестов на бд
-//            val testResultName = intent.getStringExtra(TEST_RESULT_NAME)
-//            testResults.add(score)
-//
-//            val testResultRef = database.collection("users")
-//                .document(auth.currentUser?.uid.toString())
-//
-//            val resultHashMap = hashMapOf(
-//                "Результаты по тестам" to hashMapOf(testResultName to testResults)
-//            )
-//            testResultRef.set(resultHashMap, SetOptions.merge())
-//
-//            val intentNice = Intent(this, TestActivity::class.java)
-//            startActivity(intentNice)
-            } else {
-
-                val testName = intent.getStringExtra(TEST_NAME)
 
                 database.collection("users").document(auth.currentUser?.uid.toString()).get()
                     .addOnSuccessListener {
@@ -219,13 +204,36 @@ class QuizActivity : AppCompatActivity() {
                         val surname = data["Фамилия"] as? String ?: return@addOnSuccessListener
 
                         val username = "$name $surname"
+
+                        val userResultMap = hashMapOf(
+                            username to hashMapOf("Тесты" to hashMapOf(testName to score))
+                        )
+
+                        database.collection("Тесты").document("Результаты по тестам").set(userResultMap, SetOptions.merge())
+
+                        val testActivityIntent = Intent(this, TestActivity::class.java)
+                        startActivity(testActivityIntent)
+                    }
+
+            } else {
+
+                database.collection("users").document(auth.currentUser?.uid.toString()).get()
+                    .addOnSuccessListener {
+
+                        val data = it.data ?: return@addOnSuccessListener
+
+                        val name = data["Имя"] as? String ?: return@addOnSuccessListener
+                        val surname = data["Фамилия"] as? String ?: return@addOnSuccessListener
+
+                        val username = "$name $surname"
+
                         val resultMap = hashMapOf(
                             "Ответы" to userAnswers,
                             "Комментарии" to userComments
                         )
 
                         val userResultMap = hashMapOf(
-                            username to hashMapOf(testName to resultMap)
+                            username to hashMapOf("Опросы" to hashMapOf(testName to resultMap))
                         )
 
                         database.collection("Тесты").document("Результаты по тестам").set(userResultMap, SetOptions.merge())
@@ -244,30 +252,26 @@ class QuizActivity : AppCompatActivity() {
 
                 if (testType == "Тест") {
 
-                    if (button.text == rightAnswers[index]) {
+                    if (index == questions.size - 1) {
 
-                        index++
-                        score++
-                        textView.text = questions[index]
+                        if (button.text == rightAnswers[index]) score ++
 
-                    } else if (index <= questions.size) {
-
-                        index++
-                        textView.text = questions[index]
-
-                    } else {
-                        return@setOnClickListener
-                    }
-
-                    if (index == (questions.size - 1)) {
-                        for (i in buttons) {
-                            i.visibility = View.GONE
+                        for (btn in buttons) {
+                            btn.visibility = View.GONE
+                            textView.text = "Тест завершен" + "\n" + "\n" + "Спасибо что уделили свое время!"
                             finishButton.visibility = View.VISIBLE
                             resultTextView.visibility = View.VISIBLE
                             resultTextView.text = "Ваш результат: $score"
                         }
+
+                    } else if (button.text == rightAnswers[index]) {
+                        index++
+                        score++
+                        textView.text = questions[index]
+
                     } else {
-                        applyButtons()
+                        index++
+                        textView.text = questions[index]
                     }
 
                 } else {
@@ -281,7 +285,7 @@ class QuizActivity : AppCompatActivity() {
                             btn.visibility = View.GONE
                         }
 
-                        textView.text = "Опрос завершен" + "\n" + "\n" + "Спасибо что уделили время!"
+                        textView.text = "Опрос завершен" + "\n" + "\n" + "Спасибо что уделили свое время!"
                         inputCommentEditText.visibility = View.INVISIBLE
                         finishButton.visibility = View.VISIBLE
                     } else {
