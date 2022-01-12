@@ -208,8 +208,31 @@ class QuizActivity : AppCompatActivity() {
 //            startActivity(intentNice)
             } else {
 
-                Log.d("HELPME", userAnswers.toString())
-                Log.d("HELPME", userComments.toString())
+                val testName = intent.getStringExtra(TEST_NAME)
+
+                database.collection("users").document(auth.currentUser?.uid.toString()).get()
+                    .addOnSuccessListener {
+
+                        val data = it.data ?: return@addOnSuccessListener
+
+                        val name = data["Имя"] as? String ?: return@addOnSuccessListener
+                        val surname = data["Фамилия"] as? String ?: return@addOnSuccessListener
+
+                        val username = "$name $surname"
+                        val resultMap = hashMapOf(
+                            "Ответы" to userAnswers,
+                            "Комментарии" to userComments
+                        )
+
+                        val userResultMap = hashMapOf(
+                            username to hashMapOf(testName to resultMap)
+                        )
+
+                        database.collection("Тесты").document("Результаты по тестам").set(userResultMap, SetOptions.merge())
+
+                        val testActivityIntent = Intent(this, TestActivity::class.java)
+                        startActivity(testActivityIntent)
+                    }
             }
         }
 
@@ -253,7 +276,7 @@ class QuizActivity : AppCompatActivity() {
 
                         userAnswers.add(button.text.toString())
                         userComments.add(inputCommentEditText.text.toString())
-                        
+
                         for (btn in buttons) {
                             btn.visibility = View.GONE
                         }
